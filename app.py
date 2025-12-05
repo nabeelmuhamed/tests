@@ -11,7 +11,7 @@ USER_ROLES = {
 }
 
 # Get logged-in Streamlit user (works only on Streamlit Cloud)
-user = user.email
+user = st.experimental_user
 
 st.title(f"User Role Demo:{user}")
 
