@@ -1,27 +1,31 @@
 import streamlit as st
 
-st.set_page_config(page_title="User Roles Demo", layout="centered")
-
-# Roles assigned based on email
+# --- Roles assigned based on email (or username mapping) ---
 USER_ROLES = {
     "nabeelms007@gmail.com": "admin",
     "nms236161@gmail.com": "owner",
     "nabeelms1999@outlook.com": "clinic_admin",
     "doctor@example.com": "doctor",
+    # If you want, you can map Replit usernames to roles too
+    "matt": "admin",
 }
 
-# Get logged-in Streamlit user (works only on Streamlit Cloud)
-user = st.session_state['username']
+# --- Print headers (optional, for debugging) ---
+st.write(st.context.headers.to_dict())
 
-st.title(f"User Role Demo: {user}")
+# --- Get Replit username from headers ---
+if 'username' not in st.session_state:
+    st.session_state['username'] = st.context.headers.get("X-Replit-User-Name", "unknown")
 
-if user:
-    email = user.email
-    # Get role from dictionary (default to guest)
-    role = USER_ROLES.get(email, "guest")
+# --- Access control ---
+allowed_user_ids = {"matt"}  # Add authorized Replit usernames here
+if st.session_state['username'] not in allowed_user_ids:
+    st.error(f"Hi {st.session_state['username']}, you are not authorized to view this application.")
+    st.stop()
 
-    st.write(f"### Hello, **{user.name}** 👋")
-    st.write(f"#### Your role: **{role}**")
-else:
-    st.write("You are not logged in. (Streamlit Cloud required)")
+# --- Assign role based on username/email ---
+role = USER_ROLES.get(st.session_state['username'], "guest")
 
+# --- Display greeting and role ---
+st.write(f"### Hello, **{st.session_state['username']}** 👋")
+st.write(f"#### Your role: **{role}**")
