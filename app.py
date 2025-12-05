@@ -1,4 +1,6 @@
 import streamlit as st
+import json
+import base64
 
 # --- Roles assigned based on email/username ---
 USER_ROLES = {
@@ -8,24 +10,37 @@ USER_ROLES = {
     "doctor@example.com": "doctor",
 }
 
-# --- Print headers (optional, for debugging) ---
-st.write(st.context.headers.to_dict())
+st.set_page_config(page_title="User Roles Demo", layout="centered")
 
-# --- Get username/email from headers ---
-if 'username' not in st.session_state:
-    st.session_state['username'] = st.context.headers.get("X-Replit-User-Name", "unknown")
+# --- Print headers for debugging ---
+st.write("Request headers:", st.context.headers.to_dict())
 
-# --- Allowed users are all keys in USER_ROLES ---
-allowed_user_ids = set(USER_ROLES.keys())
+# --- Get Base64-encoded Streamlit user header ---
+encoded_user = st.context.headers.get("X-Streamlit-User")
 
-# --- Access control ---
-if st.session_state['username'] not in allowed_user_ids:
-    st.error(f"Hi {st.session_state['username']}, you are not authorized to view this application.")
+if not encoded_user:
+    st.error("No user header found. Make sure this is a private Streamlit app.")
     st.stop()
 
-# --- Assign role based on username/email ---
-role = USER_ROLES.get(st.session_state['username'], "guest")
+# --- Decode Base64 JSON ---
+try:
+    decoded_bytes = base64.b64decode(encoded_user)
+    user_info = json.loads(decoded_bytes)
+    email = user_info.get("email", "")
+    display_name = user_info.get("displayName", "Unknown")
+except Exception as e:
+    st.error(f"Failed to decode user info: {e}")
+    st.stop()
+
+# --- Access control ---
+if email not in USER_ROLES:
+    st.error(f"Hi {display_name} ({email}), you are not authorized to view this application.")
+    st.stop()
+
+# --- Assign role based on email ---
+role = USER_ROLES[email]
 
 # --- Display greeting and role ---
-st.write(f"### Hello, **{st.session_state['username']}** 👋")
+st.write(f"### Hello, **{display_name}** 👋")
+st.write(f"#### Your email: **{email}**")
 st.write(f"#### Your role: **{role}**")
