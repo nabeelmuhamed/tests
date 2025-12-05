@@ -16,19 +16,21 @@ if "generated_otp" not in st.session_state:
 if "email" not in st.session_state:
     st.session_state.email = None
 
+# --- Get email credentials from Streamlit secrets ---
+EMAIL_ADDRESS = st.secrets["email"]["address"]
+EMAIL_PASSWORD = st.secrets["email"]["app_password"]
+
+# Function to send OTP via email
 def send_otp(email, otp):
     try:
-        sender_email = "your_email@example.com"      # Replace with your email
-        sender_password = "your_email_password"      # Replace with your password
-
         msg = MIMEText(f"Your OTP is: {otp}")
         msg["Subject"] = "Your Streamlit App OTP"
-        msg["From"] = sender_email
+        msg["From"] = EMAIL_ADDRESS
         msg["To"] = email
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, email, msg.as_string())
+            server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            server.sendmail(EMAIL_ADDRESS, email, msg.as_string())
         return True
     except Exception as e:
         st.error(f"Failed to send OTP: {e}")
