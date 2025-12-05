@@ -11,7 +11,7 @@ USER_ROLES = {
 }
 
 # Get logged-in Streamlit user (works only on Streamlit Cloud)
-user = st.user
+user = st.session_state['username']
 
 st.title(f"User Role Demo: {user}")
 
@@ -24,3 +24,4 @@ if user:
     st.write(f"#### Your role: **{role}**")
 else:
     st.write("You are not logged in. (Streamlit Cloud required)")
+
