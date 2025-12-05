@@ -13,7 +13,7 @@ USER_ROLES = {
 # Get logged-in Streamlit user (works only on Streamlit Cloud)
 user = st.experimental_user
 
-st.title("User Role Demo")
+st.title("User Role Demo:",user)
 
 if user:
     email = user.email
@@ -26,3 +26,4 @@ if user:
 
 else:
     st.write("You are not logged in. (Streamlit Cloud required)")
+
